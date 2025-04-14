@@ -72,7 +72,7 @@ export default function OrdersPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm text-gray-500 mb-4">
-                  <p>Order Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                  <p>Order Date: {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</p>
                   <p>Total: ${order.total.toFixed(2)}</p>
                 </div>
                 
