@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
@@ -45,7 +46,7 @@ const BreadcrumbLink = React.forwardRef<
     asChild?: boolean
   }
 >(({ asChild, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : "a"
+  const Comp = (asChild ? Slot : "a") as React.ElementType;
 
   return (
     <Comp

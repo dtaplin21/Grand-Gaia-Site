@@ -7,6 +7,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
+import React from "react"
 
 export function Toaster() {
   const { toasts } = useToast()
@@ -17,12 +18,13 @@ export function Toaster() {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
+              {title && <ToastTitle>{String(title)}</ToastTitle>}
               {description && (
-                <ToastDescription>{description}</ToastDescription>
+                <ToastDescription>{String(description)}</ToastDescription>
               )}
             </div>
-            {action}
+            
+            {action as any}
             <ToastClose />
           </Toast>
         )
@@ -31,3 +33,36 @@ export function Toaster() {
     </ToastProvider>
   )
 }
+// import { useToast } from "@/hooks/use-toast"
+// import {
+//   Toast,
+//   ToastClose,
+//   ToastDescription,
+//   ToastProvider,
+//   ToastTitle,
+//   ToastViewport,
+// } from "@/components/ui/toast"
+
+// export function Toaster() {
+//   const { toasts } = useToast()
+
+//   return (
+//     <ToastProvider>
+//       {toasts.map(function ({ id, title, description, action, ...props }) {
+//         return (
+//           <Toast key={id} {...props}>
+//             <div className="grid gap-1">
+//               {title && <ToastTitle>{title}</ToastTitle>}
+//               {description && (
+//                 <ToastDescription>{description}</ToastDescription>
+//               )}
+//             </div>
+//             {action}
+//             <ToastClose />
+//           </Toast>
+//         )
+//       })}
+//       <ToastViewport />
+//     </ToastProvider>
+//   )
+// }
