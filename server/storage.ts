@@ -254,7 +254,22 @@ export class MemStorage implements IStorage {
 
   async createProduct(product: InsertProduct): Promise<Product> {
     const id = this.currentProductId++;
-    const newProduct: Product = { ...product, id };
+    const newProduct: Product = { 
+      id,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      shortDescription: product.shortDescription ?? null,
+      price: product.price,
+      images: product.images,
+      category: product.category,
+      stock: product.stock ?? 0,
+      featured: product.featured ?? null,
+      benefits: product.benefits ?? null,
+      usage: product.usage ?? null,
+      isBestseller: product.isBestseller ?? null,
+      isNew: product.isNew ?? null
+    };
     this.products.set(id, newProduct);
     return newProduct;
   }
@@ -291,7 +306,20 @@ export class MemStorage implements IStorage {
 
   async createUser(user: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const newUser: User = { ...user, id };
+    const newUser: User = { 
+      id,
+      username: user.username,
+      password: user.password,
+      email: user.email,
+      firstName: user.firstName ?? null,
+      lastName: user.lastName ?? null,
+      address: user.address ?? null,
+      city: user.city ?? null,
+      state: user.state ?? null,
+      zip: user.zip ?? null,
+      country: user.country ?? null,
+      phone: user.phone ?? null
+     };
     this.users.set(id, newUser);
     return newUser;
   }
@@ -322,10 +350,16 @@ export class MemStorage implements IStorage {
     const id = this.currentOrderId++;
     const now = new Date();
     const newOrder: Order = { 
-      ...order, 
       id,
-      createdAt: now,
-      updatedAt: now
+  userId: order.userId,
+  status: order.status || 'pending',
+  total: order.total,
+  name: order.name,
+  email: order.email ?? null,
+  shippingAddress: order.shippingAddress ?? null,
+  billingAddress: order.billingAddress ?? null, // Add this line
+  createdAt: now,
+  updatedAt: now
     };
     this.orders.set(id, newOrder);
     return newOrder;
@@ -421,8 +455,11 @@ export class MemStorage implements IStorage {
   async createReview(review: InsertReview): Promise<Review> {
     const id = this.currentReviewId++;
     const newReview: Review = { 
-      ...review, 
       id,
+      userId: review.userId,
+      productId: review.productId,
+      rating: review.rating,
+      comment: review.comment ?? null,
       createdAt: new Date()
     };
     this.reviews.set(id, newReview);
@@ -490,7 +527,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: number): Promise<boolean> {
     const result = await db.delete(products).where(eq(products.id, id));
-    return result.count > 0;
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   // Users
@@ -615,12 +652,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCartItem(id: number): Promise<boolean> {
     const result = await db.delete(cartItems).where(eq(cartItems.id, id));
-    return result.count > 0;
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   async clearCart(userId: number): Promise<boolean> {
     const result = await db.delete(cartItems).where(eq(cartItems.userId, userId));
-    return result.count > 0;
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   // Reviews

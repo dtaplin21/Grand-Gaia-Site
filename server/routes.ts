@@ -25,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes - All prefixed with /api
   
   // Products
-  app.get("/api/products", async (req, res) => {
+  app.get("/api/products", async (req, res): Promise<void> => {
     try {
       const products = await storage.getProducts();
       res.json(products);
@@ -34,11 +34,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/products/:slug", async (req, res) => {
+  app.get("/api/products/:slug", async (req, res): Promise<void> => {
     try {
       const product = await storage.getProductBySlug(req.params.slug);
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+        res.status(404).json({ message: "Product not found" });
+        return;
       }
       res.json(product);
     } catch (error) {
@@ -47,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update product (for admin use)
-  app.patch("/api/products/:id", express.json(), async (req, res) => {
+  app.patch("/api/products/:id", express.json(), async (req, res): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       
@@ -55,19 +56,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { price } = req.body;
       
       if (typeof price !== 'number' || price < 0) {
-        return res.status(400).json({ message: "Invalid price. Price must be a non-negative number." });
+        res.status(400).json({ message: "Invalid price. Price must be a non-negative number." });
+        return;
       }
       
       const existingProduct = await storage.getProduct(id);
       if (!existingProduct) {
-        return res.status(404).json({ message: "Product not found" });
+        res.status(404).json({ message: "Product not found" });
+        return;
       }
       
       // Update only the price
       const updatedProduct = await storage.updateProduct(id, { price });
       
       if (!updatedProduct) {
-        return res.status(500).json({ message: "Failed to update product" });
+        res.status(500).json({ message: "Failed to update product" });
+        return;
       }
       
       res.json(updatedProduct);
@@ -78,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cart Items
-  app.get("/api/cart/:userId", async (req, res) => {
+  app.get("/api/cart/:userId", async (req, res): Promise<void> => {
     try {
       const userId = parseInt(req.params.userId);
       const cartItems = await storage.getCartItems(userId);
@@ -100,11 +104,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/cart", express.json(), async (req, res) => {
+  app.post("/api/cart", express.json(), async (req, res): Promise<void> => {
     try {
       const validation = insertCartItemSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid cart item data", errors: validation.error });
+        res.status(400).json({ message: "Invalid cart item data", errors: validation.error });
+        return;
       }
       
       const { userId, productId, quantity } = validation.data;
@@ -112,7 +117,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if product exists
       const product = await storage.getProduct(productId);
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+        res.status(404).json({ message: "Product not found" });
+        return;
       }
       
       // Check if user already has this product in cart
@@ -124,7 +130,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           existingCartItem.id,
           existingCartItem.quantity + quantity
         );
-        return res.status(200).json(updatedItem);
+        res.status(200).json(updatedItem);
+        return;
       } else {
         // Create new cart item
         const newCartItem = await storage.createCartItem(validation.data);
@@ -135,19 +142,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/cart/:id", express.json(), async (req, res) => {
+  app.put("/api/cart/:id", express.json(), async (req, res): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       const { quantity } = req.body;
       
       if (typeof quantity !== 'number' || quantity < 1) {
-        return res.status(400).json({ message: "Invalid quantity" });
+        res.status(400).json({ message: "Invalid quantity" });
+        return;
       }
       
       const updatedItem = await storage.updateCartItemQuantity(id, quantity);
       
       if (!updatedItem) {
-        return res.status(404).json({ message: "Cart item not found" });
+        res.status(404).json({ message: "Cart item not found" });
+        return;
       }
       
       res.json(updatedItem);
@@ -156,13 +165,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/cart/:id", async (req, res) => {
+  app.delete("/api/cart/:id", async (req, res): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteCartItem(id);
       
       if (!success) {
-        return res.status(404).json({ message: "Cart item not found" });
+        res.status(404).json({ message: "Cart item not found" });
+        return;
       }
       
       res.status(204).end();
@@ -172,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Clear cart
-  app.delete("/api/cart/user/:userId", async (req, res) => {
+  app.delete("/api/cart/user/:userId", async (req, res): Promise<void> => {
     try {
       const userId = parseInt(req.params.userId);
       await storage.clearCart(userId);
@@ -183,22 +193,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Users (simplified for demo - in a real app would include authentication)
-  app.post("/api/users/register", express.json(), async (req, res) => {
+  app.post("/api/users/register", express.json(), async (req, res): Promise<void> => {
     try {
       const validation = insertUserSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid user data", errors: validation.error });
+        res.status(400).json({ message: "Invalid user data", errors: validation.error });
+        return;
       }
       
       // Check if username or email already exists
       const existingUserByUsername = await storage.getUserByUsername(validation.data.username);
       if (existingUserByUsername) {
-        return res.status(400).json({ message: "Username already exists" });
+        res.status(400).json({ message: "Username already exists" });
+        return;
       }
       
       const existingUserByEmail = await storage.getUserByEmail(validation.data.email);
       if (existingUserByEmail) {
-        return res.status(400).json({ message: "Email already exists" });
+        res.status(400).json({ message: "Email already exists" });
+        return;
       }
       
       // Create user
@@ -212,18 +225,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/users/login", express.json(), async (req, res) => {
+  app.post("/api/users/login", express.json(), async (req, res): Promise<void> => {
     try {
       const { username, password } = req.body;
       
       if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
+        res.status(400).json({ message: "Username and password are required" });
+        return;
       }
       
       const user = await storage.getUserByUsername(username);
       
       if (!user || user.password !== password) { // In a real app, you'd use proper password hashing
-        return res.status(401).json({ message: "Invalid credentials" });
+        res.status(401).json({ message: "Invalid credentials" });
+        return;
       }
       
       // Don't return password in response
@@ -235,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Orders
-  app.get("/api/orders/user/:userId", async (req, res) => {
+  app.get("/api/orders/user/:userId", async (req, res): Promise<void> => {
     try {
       const userId = parseInt(req.params.userId);
       const orders = await storage.getUserOrders(userId);
@@ -245,13 +260,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/orders/:id", async (req, res) => {
+  app.get("/api/orders/:id", async (req, res): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       const order = await storage.getOrder(id);
       
       if (!order) {
-        return res.status(404).json({ message: "Order not found" });
+        res.status(404).json({ message: "Order not found" });
+        return;
       }
       
       // Get order items
@@ -266,16 +282,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/orders", express.json(), async (req, res) => {
+  app.post("/api/orders", express.json(), async (req, res): Promise<void> => {
     try {
       const orderData = insertOrderSchema.safeParse(req.body.order);
       if (!orderData.success) {
-        return res.status(400).json({ message: "Invalid order data", errors: orderData.error });
+        res.status(400).json({ message: "Invalid order data", errors: orderData.error });
+        return;
       }
       
       const orderItemsData = z.array(insertOrderItemSchema).safeParse(req.body.orderItems);
       if (!orderItemsData.success) {
-        return res.status(400).json({ message: "Invalid order items data", errors: orderItemsData.error });
+        res.status(400).json({ message: "Invalid order items data", errors: orderItemsData.error });
+        return;
       }
       
       // Create order
@@ -328,8 +346,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           subtotal,
           shipping,
           total,
-          shippingAddress: orderData.data.shippingAddress,
-          dateCreated: newOrder.createdAt
+          shippingAddress: orderData.data.shippingAddress || 'Address not Provided',
+          dateCreated: newOrder.createdAt || new Date()
         });
         
       } catch (emailError) {
@@ -347,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reviews
-  app.get("/api/reviews", async (req, res) => {
+  app.get("/api/reviews", async (req, res): Promise<void> => {
     try {
       // Get all reviews (will add pagination in a real app)
       const allReviews = await storage.getAllReviews();
@@ -357,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/reviews/product/:productId", async (req, res) => {
+  app.get("/api/reviews/product/:productId", async (req, res): Promise<void> => {
     try {
       const productId = parseInt(req.params.productId);
       const reviews = await storage.getProductReviews(productId);
@@ -367,11 +385,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/reviews", express.json(), async (req, res) => {
+  app.post("/api/reviews", express.json(), async (req, res): Promise<void> => {
     try {
       const validation = insertReviewSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid review data", errors: validation.error });
+        res.status(400).json({ message: "Invalid review data", errors: validation.error });
+        return;
       }
       
       const newReview = await storage.createReview(validation.data);
@@ -382,17 +401,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Newsletter
-  app.post("/api/newsletter/subscribe", express.json(), async (req, res) => {
+  app.post("/api/newsletter/subscribe", express.json(), async (req, res): Promise<void> => {
     try {
       const validation = insertSubscriberSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid email", errors: validation.error });
+        res.status(400).json({ message: "Invalid email", errors: validation.error });
+        return;
       }
       
       // Check if email already subscribed
       const existingSubscriber = await storage.getSubscriberByEmail(validation.data.email);
       if (existingSubscriber) {
-        return res.status(409).json({ message: "Email already subscribed" });
+        res.status(409).json({ message: "Email already subscribed" });
+        return;
       }
       
       const newSubscriber = await storage.createSubscriber(validation.data);
@@ -403,11 +424,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact
-  app.post("/api/contact", express.json(), async (req, res) => {
+  app.post("/api/contact", express.json(), async (req, res): Promise<void> => {
     try {
       const validation = insertContactMessageSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid contact form data", errors: validation.error });
+        res.status(400).json({ message: "Invalid contact form data", errors: validation.error });
+        return;
       }
       
       // First save to the database
@@ -451,7 +473,7 @@ Message: ${validation.data.message}
   });
 
   // Stripe payments
-  app.post("/api/create-payment-intent", express.json(), async (req, res) => {
+  app.post("/api/create-payment-intent", express.json(), async (req, res): Promise<void> => {
     try {
       const { amount, orderItems } = req.body;
       
@@ -477,12 +499,13 @@ Message: ${validation.data.message}
   });
 
   // Webhook for payment completion
-  app.post("/api/webhook", express.raw({type: 'application/json'}), async (req, res) => {
+  app.post("/api/webhook", express.raw({type: 'application/json'}), async (req, res): Promise<void> => {
     try {
       const sig = req.headers['stripe-signature'] as string;
       
       if (!process.env.STRIPE_WEBHOOK_SECRET) {
-        return res.status(400).send('Webhook secret is not set');
+        res.status(400).send('Webhook secret is not set');
+        return;
       }
 
       let event: Stripe.Event;
@@ -490,7 +513,8 @@ Message: ${validation.data.message}
       try {
         event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
       } catch (err: any) {
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+        return;
       }
       
       // Handle the event
@@ -548,8 +572,8 @@ Message: ${validation.data.message}
                   subtotal,
                   shipping,
                   total,
-                  shippingAddress: matchingOrder.shippingAddress,
-                  dateCreated: matchingOrder.createdAt
+                  shippingAddress: matchingOrder.shippingAddress || 'Address not Provided',
+                  dateCreated: matchingOrder.createdAt || new Date(),
                 });
               }
             }
