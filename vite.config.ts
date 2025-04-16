@@ -26,23 +26,17 @@ export default defineConfig({
 
 // import { defineConfig } from "vite";
 // import react from "@vitejs/plugin-react";
-// import themePlugin from "@replit/vite-plugin-shadcn-theme-json";
 // import path from "path";
-// import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 // export default async function () {
 //   const plugins = [
 //     react(),
-//     runtimeErrorOverlay(),
-//     themePlugin(),
 //   ];
 
 //   if (
 //     process.env.NODE_ENV !== "production" &&
 //     process.env.REPL_ID !== undefined
 //   ) {
-//     const cartographerPlugin = await import("@replit/vite-plugin-cartographer").then(
-//       (m) => m.cartographer()
 //     );
 //     plugins.push(cartographerPlugin);
 //   }

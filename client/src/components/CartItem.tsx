@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "@/lib/routing";
 import { CartItemType } from "@/context/CartContext";
 import QuantitySelector from "./QuantitySelector";
 

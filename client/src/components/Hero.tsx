@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "@/lib/routing";
 import { Button } from "@/components/ui/button";
 
 export default function Hero() {
