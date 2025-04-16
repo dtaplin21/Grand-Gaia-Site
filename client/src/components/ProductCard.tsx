@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "@/lib/routing";
 import { Product } from "@shared/schema";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";

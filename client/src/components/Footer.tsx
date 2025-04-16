@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link } from "@/lib/routing";
 
 export default function Footer() {
   return (

@@ -7,6 +7,21 @@ import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./storage";
 
 const app = express();
+
+// ✅ Store the original app.use
+const originalAppUse = app.use.bind(app);
+
+// ✅ Safely override app.use with debug tracing
+(app as any).use = (...args: any[]) => {
+  const [maybePath] = args;
+  if (typeof maybePath === "string" && maybePath.includes("git.new")) {
+    console.error("🔥 Detected bad route registration:", maybePath);
+    console.trace();
+  }
+  return originalAppUse(...args);
+};
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

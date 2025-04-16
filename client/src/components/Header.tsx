@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation } from "@/lib/routing";
 import { useCart } from "@/context/CartContext";
 
 const Header = () => {
