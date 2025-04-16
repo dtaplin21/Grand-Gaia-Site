@@ -1,6 +1,9 @@
 {
   "name": "rest-express",
   "version": "1.0.0",
+  "overrides": {
+   "path-to-regexp": "0.1.12"
+  },
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -64,7 +67,6 @@
     "memorystore": "^1.6.7",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "path-to-regexp": "^6.2.1",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",

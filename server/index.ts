@@ -1,3 +1,4 @@
+import "./patch-path-to-regexp";
 import dotenv from "dotenv";
 dotenv.config();
 
