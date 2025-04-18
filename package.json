@@ -82,7 +82,8 @@
     "wouter": "^3.6.0",
     "ws": "^8.18.0",
     "zod": "^3.23.8",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^3.4.0",
+    "path-to-regexp": "0.1.7"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
