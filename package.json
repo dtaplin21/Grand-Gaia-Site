@@ -2,7 +2,7 @@
   "name": "rest-express",
   "version": "1.0.0",
   "overrides": {
-   "path-to-regexp": "0.1.12"
+   "path-to-regexp": "0.1.7"
   },
   "type": "module",
   "license": "MIT",
